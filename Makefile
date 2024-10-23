@@ -7,5 +7,6 @@ test: file.o
 		./test
 
 clean:
-		rm -fr *.o
+		rm -f *.o
+		rm -f */*.o
 		rm -f ./test
