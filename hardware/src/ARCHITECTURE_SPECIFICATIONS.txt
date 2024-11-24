@@ -1,0 +1,289 @@
+####################################################################################################
+######################################## REGISTERS #################################################
+####################################################################################################
+
+PC - Program Counter - Stores the address of the next instruction in RAM
+R1 - General Purpose Register
+R2 - General Purpose Register
+R3 - General Purpose Register
+R4 - General Purpose Register
+R5 - General Purpose Register
+R6 - General Purpose Register
+R7 - General Purpose Register
+R8 - General Purpose Register
+
+####################################################################################################
+####################################### INSTRUCTION SET ############################################
+####################################################################################################
+
+This section outlines the instruction set for a CPU using a 32 bit word size in Little Endian 
+format. The instruction set is designed to be simple, easy to implement and extensible.
+
+From here out we refer to bits in the following order:
+  1. The least significant bit (i.e. the bit furthest to the right) is bit 1
+  2. The most significant bit (i.e. the bit furthest to the left) is bit 32
+
+####################################################################################################
+######################################### INSTRUCTIONS #############################################
+####################################################################################################
+
+JMP - Jumps the program counter to a value specified by the base register plus offset
+
+Bits 1 - 4   | Op Code - 0000
+Bit  5       | Control bit, if set to 0 the higher order bits control the source register for the 
+               offset, if set to 1 the higher order bits define a fixed value offset
+Bits 6 - 8   | The base register
+Bit  9       | Control bit, if set to 1 a control register is used to determine if the jump should 
+               be taken
+Bits 10 - 13 | The control register
+Bits 13 - 32 | The fixed value offset or register storing the offset value
+
+Note: By optionally using the higher order bits directly as the offset, the JMP instruction can 
+      operate on programs up to 2^19 x 4 x 256 - 1 = 512MB (effectively) in size without the need
+      for using an additional instruction to load the offset into a register. This makes moderate 
+      size programs more efficient to run.
+
+      Additionally the use of a base and offset register means that programs can easily be linked 
+      into larger projects at an arbitrary location.
+
+####################################################################################################
+
+LD - Loads the address into a register specified by the base register plus offset
+
+Bits 1 - 4   | Op Code - 0001
+Bits 5 - 6   | The number of bytes (which allows you to load a byte, half word or word)
+Bit  7       | Control bit, if set to 0 the higher order bits control the source register for the 
+               offset, if set to 1 the higher order bits define a fixed value offset
+Bits 8 - 10  | The destination register (if a partial word is loaded the remaining bits are set to 
+               zero)
+Bits 11 - 13 | The base address register
+Bits 14 - 32 | The fixed value offset in bytes or register storing the offset value
+
+Note: By optionally using the higher order bits as the offset, the LD instruction can operate on 
+      areas up to 2^18 x 256 - 1 = 64MB in size without the need for using an additional instruction 
+      to load the offset into a register.
+
+      Additionally the use of a base and offset register means areas of memory can be arbitrarily
+      mapped into the address space i.e. to support "pages" of memory.
+
+####################################################################################################
+
+PUT - Puts a registers value into the address
+
+Bits 1 - 4   | Op Code - 0010
+Bits 5 - 6   | The number of bytes (which allows you to store a byte, half word or word)
+Bit  7       | Control bit, if set to 0 the higher order bits control the source register for the 
+               offset, if set to 1 the higher order bits define a fixed value offset
+Bits 8 - 10  | The source register
+Bits 11 - 13 | The base address register
+Bits 14 - 32 | The fixed value offset in bytes or register storing the offset value
+
+Note: By optionally using the higher order bits as the offset, the PUT instruction can operate on 
+      areas up to 2^18 x 256 - 1 = 64MB in size without the need for using an additional instruction 
+      to load the offset into a register.
+
+      Additionally the use of a base and offset register means areas of memory can be arbitrarily
+      mapped into the address space i.e. to support "pages" of memory.
+
+####################################################################################################
+
+SET - Sets a registers value
+
+Bits 1 - 4   | Op Code - 0011
+Bits 5 - 7   | Controls the destination register
+Bit  8       | Sets the first bit
+Bits 9 - 32  | The values of the lower 24 bits
+
+Note: The upper bits will be set to zero with the exception of the first bit, the lower bits can be 
+      used to set a value in the range of 0 to 2^24 - 1 (16,777,215). By allowing the first bit to be 
+      set we can set the value to a negative number.
+
+####################################################################################################
+
+SETU - Sets the higher order bits of a register
+
+Bits 1 - 4   | Op Code - 0100
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 14  | The values to be set in the higher order bits with the exception of the first bit
+Bits 15 - 32 | Unused
+
+Note: This instruction is used in conjunction with the SET instruction to set the full 32 bits of a
+      register.
+
+####################################################################################################
+
+ADD - Adds two registers and sets a third to the value
+
+Bits 1 - 4   | Op Code - 0101
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the ADD instruction can increment a 
+      register up to 2 ^ 17 - 1 (131071) without the need for using an additional instruction to 
+      load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the incrementing of a register in place.
+
+####################################################################################################
+
+SUB - Subtracts the second register from the first and sets a third to the value
+
+Bits 1 - 4   | Op Code - 0110
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the SUB instruction can decrement a 
+      register up to 2 ^ 17 - 1 (131071) without the need for using an additional instruction to 
+      load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the decrementing of a register in place.
+
+####################################################################################################
+
+MUL - Multiplies two registers and sets a third to the value
+
+Bits 1 - 4   | Op Code - 0111
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the MUL instruction can multiply a 
+      register by a value up to 2 ^ 17 - 1 (131071) without the need for using an additional 
+      instruction to load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the multiplication of a register in place.
+
+####################################################################################################
+
+DIV - Divides the first register by the second and sets a third to the value
+
+Bits 1 - 4   | Op Code - 1000
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the DIV instruction can divide a register 
+      by a value up to 2 ^ 17 - 1 (131071) without the need for using an additional instruction to 
+      load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the division of a register in place.
+
+####################################################################################################
+
+MOD - Performs the modulus operation on the first register using the second and sets a third to the value
+
+Bits 1 - 4   | Op Code - 1001
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the MOD instruction can perform the 
+      modulus operation on a register by a value up to 2 ^ 17 - 1 (131071) without the need for using 
+      an additional instruction to load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the modulus operation of a register in place.
+
+####################################################################################################
+
+AND - Performs the bitwise AND between two registers and sets a third to the value
+
+Bits 1 - 4   | Op Code - 1010
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the AND instruction can perform the 
+      bitwise AND operation on a register just over half the word size without the need for 
+      using an additional instruction to load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the bitwise AND operation of a register in place.
+
+####################################################################################################
+
+OR - Performs the bitwise OR between two registers and sets a third to the value
+
+Bits 1 - 4   | Op Code - 1011
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the OR instruction can perform the 
+      bitwise OR operation on a register just over half the word size without the need for 
+      using an additional instruction to load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the bitwise OR operation of a register in place.
+
+####################################################################################################
+
+XOR - Performs the bitwise XOR between two registers and sets a third to the value
+
+Bits 1 - 4   | Op Code - 1100
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the first source register
+Bits 11 - 13 | Controls the second source register
+Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
+Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
+Bits 16 - 32 | The value to be used
+
+Note: By optionally using the lower 17 bits as the value, the XOR instruction can perform the 
+      bitwise XOR operation on a register just over half the word size without the need for 
+      using an additional instruction to load the value into a register.
+
+      Additionally the use of the control bit to set the first source register as the destination
+      allows for the bitwise XOR operation of a register in place.
+
+####################################################################################################
+
+BSR - Bit shifts right a register
+
+Bits 1 - 4   | Op Code - 1101
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the source register
+Bits 11 - 15 | Controls the number of bits to shift
+Bit  16      | Control bit, if set to 1 the upper bits are set to zero
+Bit  17      | Control bit, if set to 1 the source register is also used as the destination
+Bits 18 - 32 | Unused
+
+####################################################################################################
+
+BSL - Bit shifts left a register setting the lower bits to zero
+
+Bits 1 - 4   | Op Code - 1110
+Bits 5 - 7   | Controls the destination register
+Bits 8 - 10  | Controls the source register
+Bits 11 - 15 | Controls the number of bits to shift
+Bit  16      | Control bit, if set to 1 the lower bits are set to zero
+Bit  17      | Control bit, if set to 1 the source register is also used as the destination
+Bits 18 - 32 | Unused
+
+####################################################################################################
