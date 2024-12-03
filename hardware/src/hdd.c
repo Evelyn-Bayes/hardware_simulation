@@ -19,28 +19,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const char DEFAULT_HDD_FILE_NAME[] = "/tmp/HDD";
+#define DEFAULT_HDD_FILE_NAME "/tmp/HDD"
 
 // HDD Space
-const char PLATTERS_PER_HDD = 2;
-const char CYLINDERS_PER_PLATTER = 10;
-const char SECTORS_PER_CYLINDER = 10;
-const short BITS_PER_SECTOR = 4096;
-const int MAX_ADDRESSABLE_BYTE = PLATTERS_PER_HDD * CYLINDERS_PER_PLATTER * SECTORS_PER_CYLINDER * BITS_PER_SECTOR / 8;
+#define PLATTERS_PER_HDD 2
+#define CYLINDERS_PER_PLATTER 10
+#define SECTORS_PER_CYLINDER 10
+#define BITS_PER_SECTOR 4096
+#define MAX_ADDRESSABLE_BYTE PLATTERS_PER_HDD * CYLINDERS_PER_PLATTER * SECTORS_PER_CYLINDER * BITS_PER_SECTOR / 8
 
 // Per Sector Header Formatting
-const char SECTOR_HEADER_TEMPLATE[] = "Platter - %03d | Cylinder - %03d | Sector - %03d\n";
-const char SECTOR_HEADER_SIZE = 46;
+#define SECTOR_HEADER_TEMPLATE "Platter - %03d | Cylinder - %03d | Sector - %03d\n"
+#define SECTOR_HEADER_SIZE 46
 
 // Useful ASCII Char Codes
-const char NEW_LINE = 10;
-const char ZERO = 48;
-const char ONE = 49;
+#define NEW_LINE 10
+#define ZERO 48
+#define ONE 49
 
 // Read / Write Characteristics
-const short TIME_UNITS_PER_SECOND = 10000;
-const char TIME_UNITS_PER_CYLINDER_MOVE = 100;
-const char TIME_UNITS_PER_BIT_MOVE = 1;
+#define TIME_UNITS_PER_SECOND 10000
+#define TIME_UNITS_PER_CYLINDER_MOVE 100
+#define TIME_UNITS_PER_BIT_MOVE 1
 
 typedef struct {
     char platter;
@@ -102,9 +102,7 @@ void hdd_read(int address, int bytes, char* buffer) {
     fclose(file);
 }
 
-
-
-void hdd_format_disk(char* hdd_file_name) {
+void format_disk(char* hdd_file_name) {
     char formatted_sector[BITS_PER_SECTOR];
     for (short i = 0; i < BITS_PER_SECTOR; i++) {
         formatted_sector[i] = ZERO;

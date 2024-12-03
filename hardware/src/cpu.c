@@ -1,313 +1,100 @@
 /*
  * Simulates a CPU using a 32 bit word size
- * Instruction set and list of registers are outlined in the SPECIFICATIONS.txt doc.
+ *
+ * Instruction set and list of registers are outlined in the ARCHITECTURE_SPECIFICATIONS.txt file
+ * CPU cache is currently not in use
 */
 
+#include "bit_macros.h"
+#include "cpu.h"
+#include "memory.h"
+
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-const short CYCLES_PER_SECOND = 10000;
+#define CYCLES_PER_SECOND 10000
 
 // L1 Cache
-const char L1_CACHE_CYCLE_COST = 10;
-const int L1_CACHE_BYTE_SIZE = 65536;
+#define L1_CACHE_CYCLE_COST 10
+#define L1_CACHE_BYTE_SIZE 65536
 
 // L2 Cache
-const char L2_CACHE_CYCLE_COST = 100;
-const int L2_CACHE_BYTE_SIZE = 262144;
+#define L2_CACHE_CYCLE_COST 100
+#define L2_CACHE_BYTE_SIZE 262144
 
-// Main Memory
-const short MAIN_MEMORY_CYCLE_COST = 1000;
-const int MAIN_MEMORY_BYTE_SIZE = 1048576;
-
-// Cache / Memory
-char l1_cache[L1_CACHE_BYTE_SIZE];
-char l2_cache[L2_CACHE_BYTE_SIZE];
-char main_memory[MAIN_MEMORY_BYTE_SIZE];
-
-// Program Counter
-int PC;
-
-// Registers
-int registers[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+// TODO: Implement memory initialisation
+CPU init_cpu() {
+    CPU cpu;
+    cpu.program_counter = 0;
+    for (int i = 0; i < 8; i++) {
+        cpu.registers[i] = 0;
+    }
+    return cpu;
+}
 
 char get_op_code(int word) {
-    int op_code_bit_filter = 0b11110000000000000000000000000000;
-    return (word & op_code_bit_filter) >> 28;
+    int op_code_bit_filter = BIT_MASK_4 | BIT_MASK_3 | BIT_MASK_2 | BIT_MASK_1;
+    return word & op_code_bit_filter;
 }
 
+void execute_jmp_instruction(int word, CPU *cpu_ptr) {
+    bool use_higher_order_bits_as_offset = (word & BIT_MASK_5) >> 4;
+    int base_register = (word & (BIT_MASK_8 | BIT_MASK_7 | BIT_MASK_6)) >> 5;
+    bool jmp_control = (word & BIT_MASK_9) >> 8;
+    bool jmp_control_register = (word & (BIT_MASK_12 | BIT_MASK_11 | BIT_MASK_10)) >> 9;
+    int offset = (word & 0b1111111111111111111000000000000) >> 12;
 
-void execute_set_instruction(int word, int registers[]) {
-    int register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int value = word & 0b00000001111111111111111111111111;
-    registers[register_index] = value;
-}
+    if (!use_higher_order_bits_as_offset) {
+        offset = cpu_ptr->registers[offset];
+    }
 
-void execute_setu_instruction(int word, int registers[]) {
-    int register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int value = (word & 0b00000001111111100000000000000000) << 7;
-    registers[register_index] |= value;
-}
+    bool skip_jmp_operation = jmp_control && !cpu_ptr->registers[jmp_control_register];
 
-void execute_add_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
-
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
-
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] + value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] + registers[source_register_two_index];
+    if (!skip_jmp_operation) {
+        printf("Base Register %d\n", base_register);
+        printf("Base Register Value %d\n", cpu_ptr->registers[base_register]);
+        printf("Offset %d\n", offset);
+        cpu_ptr->program_counter = cpu_ptr->registers[base_register] + offset;
     }
 }
 
-void execute_sub_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
+void execute_ld_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
+    int byte_indicator_bitmask = BIT_MASK_5 | BIT_MASK_6;
+    int use_offset_value_bitmask = BIT_MASK_7;
+    int destination_register_bitmask = BIT_MASK_8 | BIT_MASK_9 | BIT_MASK_10;
+    int base_register_bitmask = BIT_MASK_11 | BIT_MASK_12 | BIT_MASK_13;
+    int offset_bitmask = BIT_MASK_14 | BIT_MASK_15 | BIT_MASK_16 | BIT_MASK_17 | BIT_MASK_18 | BIT_MASK_19 | BIT_MASK_20 |
+                            BIT_MASK_21 | BIT_MASK_22 | BIT_MASK_23 | BIT_MASK_24 | BIT_MASK_25 | BIT_MASK_26 | BIT_MASK_27 |
+                            BIT_MASK_28 | BIT_MASK_29 | BIT_MASK_30 | BIT_MASK_31 | BIT_MASK_32;
 
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
+    int byte_indicator = (word & byte_indicator_bitmask) >> 4;
+    bool use_offset_value = (word & use_offset_value_bitmask) >> 6;
+    int destination_register = (word & destination_register_bitmask) >> 7;
+    int base_register = (word & base_register_bitmask) >> 10;
+    int offset = (word & offset_bitmask) >> 13;
 
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] - value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] - registers[source_register_two_index];
+    if (!use_offset_value) {
+        offset = cpu_ptr->registers[offset];
+    }
+
+    if (byte_indicator == 0) {
+        cpu_ptr->registers[destination_register] = memory_ptr->data[base_register + offset];
+    } else if (byte_indicator == 1) {
+        cpu_ptr->registers[destination_register] = ((int) memory_ptr->data[base_register + offset]) << 8 | memory_ptr->data[base_register + offset + 1];
+    } else if (byte_indicator == 2) {
+        cpu_ptr->registers[destination_register] = ((int) memory_ptr->data[base_register + offset]) << 24 | ((int) memory_ptr->data[base_register + offset] + 1) << 16 | ((int) memory_ptr->data[base_register + offset] + 2) << 8 | memory_ptr->data[base_register + offset + 3];
     }
 }
 
-void execute_mul_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
-
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
-
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] * value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] * registers[source_register_two_index];
-    }
-}
-
-void execute_div_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
-
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
-
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] / value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] / registers[source_register_two_index];
-    }
-}
-
-void execute_mod_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
-
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
-
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] % value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] % registers[source_register_two_index];
-    }
-}
-
-void execute_and_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
-
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
-
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] & value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] & registers[source_register_two_index];
-    }
-}
-
-void execute_or_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
-
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
-
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] | value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] | registers[source_register_two_index];
-    }
-}
-
-void execute_xor_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_one_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int source_register_two_index = (word & 0b00000000001110000000000000000000) >> 19;
-
-    int use_source_register_one_as_destination = (word & 0b00000000000000100000000000000000) >> 17;
-    destination_register_index = use_source_register_one_as_destination ? source_register_two_index : destination_register_index; 
-
-    int use_lower_bits_instead_of_register_two = (word & 0b00000000000001000000000000000000) >> 18;
-    if (use_lower_bits_instead_of_register_two) {
-        int value = (word & 0b00000000000000011111111111111111);
-        registers[destination_register_index] = registers[source_register_one_index] ^ value;
-    } else {
-        registers[destination_register_index] = registers[source_register_one_index] ^ registers[source_register_two_index];
-    }
-}
-
-void execute_bsr_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int bits_to_shift = (word & 0b00000000001111000000000000000000) >> 18;
-
-    int use_source_register_as_destination = (word & 0b00000000000000001000000000000000) >> 15;
-    destination_register_index = use_source_register_as_destination ? source_register_index : destination_register_index;
-
-    int set_lower_bits_to_zero = (word & 0b00000000000000010000000000000000) >> 16;
-    if (set_lower_bits_to_zero) {
-        registers[destination_register_index] = registers[source_register_index] << bits_to_shift;
-    } else {
-        registers[destination_register_index] = registers[source_register_index] << bits_to_shift | registers[source_register_index] >> (32 - bits_to_shift);
-    }
-}
-
-void execute_bsl_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int source_register_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int bits_to_shift = (word & 0b00000000001111000000000000000000) >> 18;
-
-    int use_source_register_as_destination = (word & 0b00000000000000001000000000000000) >> 15;
-    destination_register_index = use_source_register_as_destination ? source_register_index : destination_register_index;
-
-    int set_upper_bits_to_zero = (word & 0b00000000000000010000000000000000) >> 16;
-    if (set_upper_bits_to_zero) {
-        registers[destination_register_index] = registers[source_register_index] >> bits_to_shift;
-    } else {
-        registers[destination_register_index] = registers[source_register_index] >> bits_to_shift | registers[source_register_index] << (32 - bits_to_shift);
-    }
-}
-
-void execute_ld_instruction(int word, int registers[]) {
-    int destination_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int address_register_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int memory_address = word & 0b00000000000111111111111111111111;
-
-    int use_lower_bits_as_address = (word &0b00000000001000000000000000000000) >> 21;
-    if (!use_lower_bits_as_address) {
-        int memory_address = registers[address_register_index];
-    }
-    registers[destination_register_index] = main_memory[memory_address] << 24 | 
-                                                            main_memory[memory_address + 1] << 16 | 
-                                                            main_memory[memory_address + 2] << 8 | 
-                                                            main_memory[memory_address + 3];
-}
-
-void execute_put_instruction(int word, int registers[]) {
-    int value_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int address_register_index = (word & 0b00000001110000000000000000000000) >> 22;
-    int memory_address = word & 0b00000000000001111111111111111111;
-
-    int use_lower_bits_as_address = (word &0b00000000001000000000000000000000) >> 21;
-    if (!use_lower_bits_as_address) {
-        int memory_address = registers[address_register_index];
-    }
-    main_memory[memory_address] = registers[value_register_index] >> 24;
-    main_memory[memory_address + 1] = registers[value_register_index] >> 16;
-    main_memory[memory_address + 2] = registers[value_register_index] >> 8;
-    main_memory[memory_address + 3] = registers[value_register_index];
-}
-
-void execute_jmp_instruction(int word, int registers[]) {
-    int intruction_register_index = (word & 0b00001110000000000000000000000000) >> 25;
-    int use_lower_bits_as_value = (word &0b00000001000000000000000000000000) >> 24;
-    int value = word & 0b00000000111111111111111111111111;
-    if (use_lower_bits_as_value) {
-        PC = value;
-    } else {
-        PC = registers[intruction_register_index];
-    }
-}
-
-void execute_instruction(int word) {
+void execute_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
     int op_code = get_op_code(word);
     switch (op_code) {
         case 0:
-            execute_set_instruction(word, registers);
+            execute_jmp_instruction(word, cpu_ptr);
             break;
-        case 1:
-            execute_setu_instruction(word, registers);
+        case 1 :
+            execute_ld_instruction(word, cpu_ptr, memory_ptr);
             break;
-        case 2:
-            execute_add_instruction(word, registers);
-            break;
-        case 3:
-            execute_sub_instruction(word, registers);
-            break;
-        case 4:
-            execute_mul_instruction(word, registers);
-            break;
-        case 5:
-            execute_div_instruction(word, registers);
-            break;
-        case 6:
-            execute_mod_instruction(word, registers);
-            break;
-        case 7:
-            execute_and_instruction(word, registers);
-            break;
-        case 8:
-            execute_or_instruction(word, registers);
-            break;
-        case 9:
-            execute_xor_instruction(word, registers);
-            break;
-        case 10:
-            execute_bsr_instruction(word, registers);
-            break;
-        case 11:
-            execute_bsl_instruction(word, registers);
-            break;
-        case 12:
-            execute_ld_instruction(word, registers);
-            break;
-        case 13:
-            execute_put_instruction(word, registers);
-            break;
-        case 14:
-            execute_jmp_instruction(word, registers);
-            break;
-        default:
-            fprintf(stderr, "Invalid op code: %d\n", op_code);
-            exit(1);
     }
 }
