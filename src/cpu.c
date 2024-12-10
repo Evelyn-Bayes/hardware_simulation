@@ -52,9 +52,6 @@ void execute_jmp_instruction(int word, CPU *cpu_ptr) {
     bool skip_jmp_operation = jmp_control && !cpu_ptr->registers[jmp_control_register];
 
     if (!skip_jmp_operation) {
-        printf("Base Register %d\n", base_register);
-        printf("Base Register Value %d\n", cpu_ptr->registers[base_register]);
-        printf("Offset %d\n", offset);
         cpu_ptr->program_counter = cpu_ptr->registers[base_register] + offset;
     }
 }
