@@ -1,0 +1,5 @@
+if(EXISTS "/Users/evelynbayes/git/eevee/eevee_os/hardware/build/hdd_unittest[1]_tests.cmake")
+  include("/Users/evelynbayes/git/eevee/eevee_os/hardware/build/hdd_unittest[1]_tests.cmake")
+else()
+  add_test(hdd_unittest_NOT_BUILT hdd_unittest_NOT_BUILT)
+endif()
