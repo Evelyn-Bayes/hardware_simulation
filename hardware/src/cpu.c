@@ -87,14 +87,36 @@ void execute_ld_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
     }
 }
 
+void execute_set_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
+    int destination_register_bitmask = BIT_MASK_7 | BIT_MASK_6 | BIT_MASK_5;
+    int control_bitmask = BIT_MASK_8;
+    int value_bitmask = BIT_MASK_32 | BIT_MASK_31 | BIT_MASK_30 | BIT_MASK_29 | BIT_MASK_28 | BIT_MASK_27 | BIT_MASK_26 | 
+                            BIT_MASK_25 | BIT_MASK_24 | BIT_MASK_23 | BIT_MASK_22 | BIT_MASK_21 | BIT_MASK_20 | 
+                            BIT_MASK_19 | BIT_MASK_18 | BIT_MASK_17 | BIT_MASK_16 | BIT_MASK_15 | BIT_MASK_14 | 
+                            BIT_MASK_13 | BIT_MASK_12 | BIT_MASK_11 | BIT_MASK_10 | BIT_MASK_9;
+
+    int destination_register = (word & destination_register_bitmask) >> 4;
+    bool set_negative_value = (word & control_bitmask) >> 7;
+    int value = (word & value_bitmask) >> 8;
+
+    if (set_negative_value) {
+        value = BIT_MASK_32 | BIT_MASK_31 | BIT_MASK_30 | BIT_MASK_29 | BIT_MASK_28 | BIT_MASK_27 | BIT_MASK_26 | 
+                    BIT_MASK_25 | value;
+    }
+    cpu_ptr->registers[destination_register] = value;
+}
+
 void execute_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
     int op_code = get_op_code(word);
     switch (op_code) {
         case 0:
             execute_jmp_instruction(word, cpu_ptr);
             break;
-        case 1 :
+        case 1:
             execute_ld_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 3:
+            execute_set_instruction(word, cpu_ptr, memory_ptr);
             break;
     }
 }

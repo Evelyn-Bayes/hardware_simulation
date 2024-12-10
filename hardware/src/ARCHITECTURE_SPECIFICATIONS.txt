@@ -46,6 +46,9 @@ Note: By optionally using the higher order bits directly as the offset, the JMP 
       Additionally the use of a base and offset register means that programs can easily be linked 
       into larger projects at an arbitrary location.
 
+TODO: The JMP op code currently doesn't move relative to the existing program counter. I expect this
+      functionality will be required.
+
 ####################################################################################################
 
 LD - Loads the address into a register specified by the base register plus offset
@@ -94,12 +97,12 @@ SET - Sets a registers value
 
 Bits 1 - 4   | Op Code - 0011
 Bits 5 - 7   | Controls the destination register
-Bit  8       | Sets the first bit
+Bit  8       | Control bit, if set to 1 the higher order 8 bits are set to 1, otherwise they are set 
+               to 0
 Bits 9 - 32  | The values of the lower 24 bits
 
-Note: The upper bits will be set to zero with the exception of the first bit, the lower bits can be 
-      used to set a value in the range of 0 to 2^24 - 1 (16,777,215). By allowing the first bit to be 
-      set we can set the value to a negative number.
+Note: The combination of the control bit and the lower 24 bits allows for the setting of a value in 
+      the range of -16,777,216 to 16,777,215.
 
 ####################################################################################################
 
