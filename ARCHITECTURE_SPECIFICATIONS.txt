@@ -278,8 +278,7 @@ Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the source register
 Bits 11 - 15 | Controls the number of bits to shift
 Bit  16      | Control bit, if set to 1 the upper bits are set to zero
-Bit  17      | Control bit, if set to 1 the source register is also used as the destination
-Bits 18 - 32 | Unused
+Bits 17 - 32 | Unused
 
 ####################################################################################################
 
@@ -290,7 +289,6 @@ Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the source register
 Bits 11 - 15 | Controls the number of bits to shift
 Bit  16      | Control bit, if set to 1 the lower bits are set to zero
-Bit  17      | Control bit, if set to 1 the source register is also used as the destination
-Bits 18 - 32 | Unused
+Bits 17 - 32 | Unused
 
 ####################################################################################################
