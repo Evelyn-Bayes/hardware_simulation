@@ -1,5 +1,7 @@
-#ifndef BIT_MACROS_H_
-#define BIT_MACROS_H_
+#ifndef BIT_UTILS_H_
+#define BIT_UTILS_H_
+
+int bit_mask_range(int start, int end);
 
 #define EMPTY_BIT_MASK 0b00000000000000000000000000000000
 #define BIT_MASK_1 0b00000000000000000000000000000001

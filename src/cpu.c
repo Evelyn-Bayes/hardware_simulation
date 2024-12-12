@@ -5,7 +5,7 @@
  * CPU cache is currently not in use
 */
 
-#include "bit_macros.h"
+#include "bit_utils.h"
 #include "cpu.h"
 #include "memory.h"
 
@@ -34,7 +34,7 @@ CPU init_cpu() {
 }
 
 char get_op_code(int word) {
-    int op_code_bit_filter = BIT_MASK_4 | BIT_MASK_3 | BIT_MASK_2 | BIT_MASK_1;
+    int op_code_bit_filter = 0xf;
     return word & op_code_bit_filter;
 }
 
@@ -84,6 +84,38 @@ void execute_ld_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
     }
 }
 
+void execute_put_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
+    int byte_indicator_bitmask = BIT_MASK_5 | BIT_MASK_6;
+    int use_offset_value_bitmask = BIT_MASK_7;
+    int source_register_bitmask = BIT_MASK_8 | BIT_MASK_9 | BIT_MASK_10;
+    int base_register_bitmask = BIT_MASK_11 | BIT_MASK_12 | BIT_MASK_13;
+    int offset_bitmask = BIT_MASK_14 | BIT_MASK_15 | BIT_MASK_16 | BIT_MASK_17 | BIT_MASK_18 | BIT_MASK_19 | BIT_MASK_20 |
+                            BIT_MASK_21 | BIT_MASK_22 | BIT_MASK_23 | BIT_MASK_24 | BIT_MASK_25 | BIT_MASK_26 | BIT_MASK_27 |
+                            BIT_MASK_28 | BIT_MASK_29 | BIT_MASK_30 | BIT_MASK_31 | BIT_MASK_32;
+
+    int byte_indicator = (word & byte_indicator_bitmask) >> 4;
+    bool use_offset_value = (word & use_offset_value_bitmask) >> 6;
+    int source_register = (word & source_register_bitmask) >> 7;
+    int base_register = (word & base_register_bitmask) >> 10;
+    int offset = (word & offset_bitmask) >> 13;
+
+    if (!use_offset_value) {
+        offset = cpu_ptr->registers[offset];
+    }
+
+    if (byte_indicator == 0) {
+        memory_ptr->data[base_register + offset] = cpu_ptr->registers[source_register];
+    } else if (byte_indicator == 1) {
+        memory_ptr->data[base_register + offset] = cpu_ptr->registers[source_register] >> 8 & 0xFF;
+        memory_ptr->data[base_register + offset + 1] = cpu_ptr->registers[source_register] & 0xFF;
+    } else if (byte_indicator == 2) {
+        memory_ptr->data[base_register + offset] = cpu_ptr->registers[source_register] >> 24 & 0xFF;
+        memory_ptr->data[base_register + offset + 1] = cpu_ptr->registers[source_register] >> 16 & 0xFF;
+        memory_ptr->data[base_register + offset + 2] = cpu_ptr->registers[source_register] >> 8 & 0xFF;
+        memory_ptr->data[base_register + offset + 3] = cpu_ptr->registers[source_register] & 0xFF;
+    }
+}
+
 void execute_set_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
     int destination_register_bitmask = BIT_MASK_7 | BIT_MASK_6 | BIT_MASK_5;
     int control_bitmask = BIT_MASK_8;
@@ -111,6 +143,9 @@ void execute_instruction(int word, CPU *cpu_ptr, Memory *memory_ptr) {
             break;
         case 1:
             execute_ld_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 2:
+            execute_put_instruction(word, cpu_ptr, memory_ptr);
             break;
         case 3:
             execute_set_instruction(word, cpu_ptr, memory_ptr);
