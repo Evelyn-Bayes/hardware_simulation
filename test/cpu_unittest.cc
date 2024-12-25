@@ -171,6 +171,26 @@ TEST(CPU, test_set_instruction_with_different_register) {
  * ######################################################################################################
  */
 
+TEST(CPU, test_and_instruction) {
+    CPU cpu = init_cpu();
+    Memory memory = init_memory();
+
+    // Sets register 0 to have a 1 in positions 1 and 2
+    int set_word_1 = BIT_MASK_10 | BIT_MASK_9 | SET_BIT_MASK;
+
+    // Sets register 1 to have a 1 in positions 1 and 3
+    int set_word_2 = BIT_MASK_11 | BIT_MASK_9 | BIT_MASK_5 | SET_BIT_MASK;
+
+    // Performs an AND operation on register 0 and register 1
+    int and_word = BIT_MASK_11 | AND_BIT_MASK;
+
+    execute_instruction(set_word_1, &cpu, &memory);
+    execute_instruction(set_word_2, &cpu, &memory);
+    execute_instruction(and_word, &cpu, &memory);
+
+    EXPECT_EQ(cpu.registers[0], 1);
+}
+
 /*
  * ######################################################################################################
  * ################################################ OR ##################################################
