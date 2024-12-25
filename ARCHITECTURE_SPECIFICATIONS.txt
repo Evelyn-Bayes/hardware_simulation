@@ -125,16 +125,12 @@ Bits 1 - 4   | Op Code - 0101
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
-Note: By optionally using the lower 17 bits as the value, the ADD instruction can increment a 
-      register up to 2 ^ 17 - 1 (131071) without the need for using an additional instruction to 
+Note: By optionally using the lower 18 bits as the value, the ADD instruction can increment a 
+      register up to 2 ^ 18 - 1 (262143) without the need for using an additional instruction to 
       load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the incrementing of a register in place.
 
 ####################################################################################################
 
@@ -144,16 +140,12 @@ Bits 1 - 4   | Op Code - 0110
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
 Note: By optionally using the lower 17 bits as the value, the SUB instruction can decrement a 
-      register up to 2 ^ 17 - 1 (131071) without the need for using an additional instruction to 
+      register up to 2 ^ 18 - 1 (262143) without the need for using an additional instruction to 
       load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the decrementing of a register in place.
 
 ####################################################################################################
 
@@ -163,16 +155,12 @@ Bits 1 - 4   | Op Code - 0111
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
 Note: By optionally using the lower 17 bits as the value, the MUL instruction can multiply a 
-      register by a value up to 2 ^ 17 - 1 (131071) without the need for using an additional 
+      register by a value up to 2 ^ 18 - 1 (262143) without the need for using an additional 
       instruction to load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the multiplication of a register in place.
 
 ####################################################################################################
 
@@ -182,16 +170,12 @@ Bits 1 - 4   | Op Code - 1000
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
-Note: By optionally using the lower 17 bits as the value, the DIV instruction can divide a register 
-      by a value up to 2 ^ 17 - 1 (131071) without the need for using an additional instruction to 
+Note: By optionally using the lower 18 bits as the value, the DIV instruction can divide a register 
+      by a value up to 2 ^ 18 - 1 (262143) without the need for using an additional instruction to 
       load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the division of a register in place.
 
 ####################################################################################################
 
@@ -201,16 +185,12 @@ Bits 1 - 4   | Op Code - 1001
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
-Note: By optionally using the lower 17 bits as the value, the MOD instruction can perform the 
-      modulus operation on a register by a value up to 2 ^ 17 - 1 (131071) without the need for using 
+Note: By optionally using the lower 18 bits as the value, the MOD instruction can perform the 
+      modulus operation on a register by a value up to 2 ^ 18 - 1 (262143) without the need for using 
       an additional instruction to load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the modulus operation of a register in place.
 
 ####################################################################################################
 
@@ -220,16 +200,12 @@ Bits 1 - 4   | Op Code - 1010
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
-Note: By optionally using the lower 17 bits as the value, the AND instruction can perform the 
+Note: By optionally using the lower 18 bits as the value, the AND instruction can perform the 
       bitwise AND operation on a register just over half the word size without the need for 
       using an additional instruction to load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the bitwise AND operation of a register in place.
 
 ####################################################################################################
 
@@ -239,16 +215,12 @@ Bits 1 - 4   | Op Code - 1011
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
-Note: By optionally using the lower 17 bits as the value, the OR instruction can perform the 
+Note: By optionally using the lower 18 bits as the value, the OR instruction can perform the 
       bitwise OR operation on a register just over half the word size without the need for 
       using an additional instruction to load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the bitwise OR operation of a register in place.
 
 ####################################################################################################
 
@@ -258,16 +230,12 @@ Bits 1 - 4   | Op Code - 1100
 Bits 5 - 7   | Controls the destination register
 Bits 8 - 10  | Controls the first source register
 Bits 11 - 13 | Controls the second source register
-Bit  14      | Control bit, if set to 1 the lower 17 bits are used instead of the second register
-Bit  15      | Control bit, if set to 1 the first source register is also used as the destination
-Bits 16 - 32 | The value to be used
+Bit  14      | Control bit, if set to 1 the lower 18 bits are used instead of the second register
+Bits 15 - 32 | The value to be used
 
-Note: By optionally using the lower 17 bits as the value, the XOR instruction can perform the 
+Note: By optionally using the lower 18 bits as the value, the XOR instruction can perform the 
       bitwise XOR operation on a register just over half the word size without the need for 
       using an additional instruction to load the value into a register.
-
-      Additionally the use of the control bit to set the first source register as the destination
-      allows for the bitwise XOR operation of a register in place.
 
 ####################################################################################################
 
