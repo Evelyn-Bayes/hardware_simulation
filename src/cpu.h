@@ -1,17 +1,18 @@
-#ifndef CPU_H_
-#define CPU_H_
+#ifndef _CPU_H_
+#define _CPU_H_
 
+#include <inttypes.h>
 #include "memory.h"
 
 typedef struct CPU {
-    int program_counter;
+    uint32_t program_counter;
 
-    // General Purpose Registers
-    int registers[8];
+    /* General Purpose Registers */
+    uint32_t registers[8];
 } CPU;
 
 CPU init_cpu();
 
-void execute_instruction(int word, CPU *cpu, Memory *memory);
+void execute_instruction(uint32_t word, CPU *cpu, Memory *memory);
 
 #endif
