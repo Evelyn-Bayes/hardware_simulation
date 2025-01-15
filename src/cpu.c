@@ -150,6 +150,121 @@ void execute_setu_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
     cpu_ptr->registers[destination_register] |= value;
 }
 
+void execute_add_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
+    uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
+    uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
+    uint32_t second_source_register_bitmask = BITMASK_13 | BITMASK_12 | BITMASK_11;
+    uint32_t control_bitmask = BITMASK_14;
+    uint32_t value_bitmask = BITMASK_32_TO_17 | BITMASK_16 | BITMASK_15;
+
+    uint32_t destination_register = (word & destination_register_bitmask) >> 4;
+    uint32_t first_source_register = (word & first_source_register_bitmask) >> 7;
+    uint32_t second_source_register = (word & second_source_register_bitmask) >> 10;
+    bool use_value_in_place_of_second_register = (word & control_bitmask) >> 13;
+    uint32_t value = (word & value_bitmask) >> 14;
+
+    uint32_t return_value;
+    if (use_value_in_place_of_second_register) {
+        return_value = cpu_ptr->registers[first_source_register] + value;
+    } else {
+        return_value = cpu_ptr->registers[first_source_register] + cpu_ptr->registers[second_source_register];
+    }
+
+    cpu_ptr->registers[destination_register] = return_value;
+}
+
+void execute_sub_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
+    uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
+    uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
+    uint32_t second_source_register_bitmask = BITMASK_13 | BITMASK_12 | BITMASK_11;
+    uint32_t control_bitmask = BITMASK_14;
+    uint32_t value_bitmask = BITMASK_32_TO_17 | BITMASK_16 | BITMASK_15;
+
+    uint32_t destination_register = (word & destination_register_bitmask) >> 4;
+    uint32_t first_source_register = (word & first_source_register_bitmask) >> 7;
+    uint32_t second_source_register = (word & second_source_register_bitmask) >> 10;
+    bool use_value_in_place_of_second_register = (word & control_bitmask) >> 13;
+    uint32_t value = (word & value_bitmask) >> 14;
+
+    uint32_t return_value;
+    if (use_value_in_place_of_second_register) {
+        return_value = cpu_ptr->registers[first_source_register] - value;
+    } else {
+        return_value = cpu_ptr->registers[first_source_register] - cpu_ptr->registers[second_source_register];
+    }
+
+    cpu_ptr->registers[destination_register] = return_value;
+}
+
+void execute_mul_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
+    uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
+    uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
+    uint32_t second_source_register_bitmask = BITMASK_13 | BITMASK_12 | BITMASK_11;
+    uint32_t control_bitmask = BITMASK_14;
+    uint32_t value_bitmask = BITMASK_32_TO_17 | BITMASK_16 | BITMASK_15;
+
+    uint32_t destination_register = (word & destination_register_bitmask) >> 4;
+    uint32_t first_source_register = (word & first_source_register_bitmask) >> 7;
+    uint32_t second_source_register = (word & second_source_register_bitmask) >> 10;
+    bool use_value_in_place_of_second_register = (word & control_bitmask) >> 13;
+    uint32_t value = (word & value_bitmask) >> 14;
+
+    uint32_t return_value;
+    if (use_value_in_place_of_second_register) {
+        return_value = cpu_ptr->registers[first_source_register] * value;
+    } else {
+        return_value = cpu_ptr->registers[first_source_register] * cpu_ptr->registers[second_source_register];
+    }
+
+    cpu_ptr->registers[destination_register] = return_value;
+}
+
+void execute_div_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
+    uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
+    uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
+    uint32_t second_source_register_bitmask = BITMASK_13 | BITMASK_12 | BITMASK_11;
+    uint32_t control_bitmask = BITMASK_14;
+    uint32_t value_bitmask = BITMASK_32_TO_17 | BITMASK_16 | BITMASK_15;
+
+    uint32_t destination_register = (word & destination_register_bitmask) >> 4;
+    uint32_t first_source_register = (word & first_source_register_bitmask) >> 7;
+    uint32_t second_source_register = (word & second_source_register_bitmask) >> 10;
+    bool use_value_in_place_of_second_register = (word & control_bitmask) >> 13;
+    uint32_t value = (word & value_bitmask) >> 14;
+
+    uint32_t return_value;
+    if (use_value_in_place_of_second_register) {
+        return_value = cpu_ptr->registers[first_source_register] / value;
+    } else {
+        return_value = cpu_ptr->registers[first_source_register] / cpu_ptr->registers[second_source_register];
+    }
+
+    cpu_ptr->registers[destination_register] = return_value;
+}
+
+void execute_mod_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
+    uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
+    uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
+    uint32_t second_source_register_bitmask = BITMASK_13 | BITMASK_12 | BITMASK_11;
+    uint32_t control_bitmask = BITMASK_14;
+    uint32_t value_bitmask = BITMASK_32_TO_17 | BITMASK_16 | BITMASK_15;
+
+    uint32_t destination_register = (word & destination_register_bitmask) >> 4;
+    uint32_t first_source_register = (word & first_source_register_bitmask) >> 7;
+    uint32_t second_source_register = (word & second_source_register_bitmask) >> 10;
+    bool use_value_in_place_of_second_register = (word & control_bitmask) >> 13;
+    uint32_t value = (word & value_bitmask) >> 14;
+
+    uint32_t return_value;
+    if (use_value_in_place_of_second_register) {
+        return_value = cpu_ptr->registers[first_source_register] % value;
+    } else {
+        return_value = cpu_ptr->registers[first_source_register] % cpu_ptr->registers[second_source_register];
+    }
+
+    cpu_ptr->registers[destination_register] = return_value;
+}
+
 void execute_and_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
     uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
     uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
@@ -168,6 +283,52 @@ void execute_and_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
         return_value = cpu_ptr->registers[first_source_register] & value;
     } else {
         return_value = cpu_ptr->registers[first_source_register] & cpu_ptr->registers[second_source_register];
+    }
+
+    cpu_ptr->registers[destination_register] = return_value;
+}
+
+void execute_or_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
+    uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
+    uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
+    uint32_t second_source_register_bitmask = BITMASK_13 | BITMASK_12 | BITMASK_11;
+    uint32_t control_bitmask = BITMASK_14;
+    uint32_t value_bitmask = BITMASK_32_TO_17 | BITMASK_16 | BITMASK_15;
+
+    uint32_t destination_register = (word & destination_register_bitmask) >> 4;
+    uint32_t first_source_register = (word & first_source_register_bitmask) >> 7;
+    uint32_t second_source_register = (word & second_source_register_bitmask) >> 10;
+    bool use_value_in_place_of_second_register = (word & control_bitmask) >> 13;
+    uint32_t value = (word & value_bitmask) >> 14;
+
+    uint32_t return_value;
+    if (use_value_in_place_of_second_register) {
+        return_value = cpu_ptr->registers[first_source_register] | value;
+    } else {
+        return_value = cpu_ptr->registers[first_source_register] | cpu_ptr->registers[second_source_register];
+    }
+
+    cpu_ptr->registers[destination_register] = return_value;
+}
+
+void execute_xor_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
+    uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
+    uint32_t first_source_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
+    uint32_t second_source_register_bitmask = BITMASK_13 | BITMASK_12 | BITMASK_11;
+    uint32_t control_bitmask = BITMASK_14;
+    uint32_t value_bitmask = BITMASK_32_TO_17 | BITMASK_16 | BITMASK_15;
+
+    uint32_t destination_register = (word & destination_register_bitmask) >> 4;
+    uint32_t first_source_register = (word & first_source_register_bitmask) >> 7;
+    uint32_t second_source_register = (word & second_source_register_bitmask) >> 10;
+    bool use_value_in_place_of_second_register = (word & control_bitmask) >> 13;
+    uint32_t value = (word & value_bitmask) >> 14;
+
+    uint32_t return_value;
+    if (use_value_in_place_of_second_register) {
+        return_value = cpu_ptr->registers[first_source_register] ^ value;
+    } else {
+        return_value = cpu_ptr->registers[first_source_register] ^ cpu_ptr->registers[second_source_register];
     }
 
     cpu_ptr->registers[destination_register] = return_value;
@@ -233,8 +394,29 @@ void execute_instruction(uint32_t word, CPU *cpu_ptr, Memory *memory_ptr) {
         case 4:
             execute_setu_instruction(word, cpu_ptr, memory_ptr);
             break;
+        case 5:
+            execute_add_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 6:
+            execute_sub_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 7:
+            execute_mul_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 8:
+            execute_div_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 9:
+            execute_mod_instruction(word, cpu_ptr, memory_ptr);
+            break;
         case 10:
             execute_and_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 11:
+            execute_or_instruction(word, cpu_ptr, memory_ptr);
+            break;
+        case 12:
+            execute_xor_instruction(word, cpu_ptr, memory_ptr);
             break;
         case 13:
             execute_bsr_instruction(word, cpu_ptr, memory_ptr);
