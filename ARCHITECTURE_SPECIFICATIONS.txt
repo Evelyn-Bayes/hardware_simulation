@@ -228,7 +228,7 @@ Note: By optionally using the 18 higher order bits as the value, the XOR instruc
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> BSR >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-Bit shifts right a register.
+Bit shifts right the value of a register and sets a second to the value.
 
 Bits 1 - 4   | Op Code - 1101
 Bits 5 - 7   | Controls the destination register
@@ -240,7 +240,7 @@ Bits 17 - 32 | Unused
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> BSL >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-Bit shifts left a register setting the lower bits to zero.
+Bit shifts left the value of a register and sets a second to the value.
 
 Bits 1 - 4   | Op Code - 1110
 Bits 5 - 7   | Controls the destination register

@@ -1,0 +1,153 @@
+***********************************************************************************************************************
+*                                              ASSEMBLER SPECIFICATION                                                *
+***********************************************************************************************************************
+
+Each line of assembly code must contain exactly one instruction followed by a newline character.
+
+The assembler make two passes over the assembly code. In the first pass, it reads the assembly code and clears all the
+comments. In the second pass, it converts the assembly code to machine code.
+
+File Extension: .a
+Single Line Comments: //
+Multi Line Comments: /* */
+
+***********************************************************************************************************************
+*                                                      MNEMONICS                                                      *
+***********************************************************************************************************************
+
+Mnemonics are the symbolic representation of the machine code as outlined in the HARDWARE_SPECIFICATIONS.txt doc. 
+
+It is easier to write, read and remember mnemonics rather than the machine code and hence mnemonics are used to write 
+the assembly code which is then converted to machine code by the assembler.
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> REGISTERS >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+R1 - General Purpose Register 1
+R2 - General Purpose Register 2
+R3 - General Purpose Register 3
+R4 - General Purpose Register 4
+R5 - General Purpose Register 5
+R6 - General Purpose Register 6
+R7 - General Purpose Register 7
+R8 - General Purpose Register 8
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> JMP >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+JMP - Jump to the specified address.
+
+Syntax: 
+JMP           <address register>  <offset register>
+JMP_IF        <address register>  <offset register>  <condition register>
+JMP_FIXED     <address register>  <offset>
+JMP_FIXED_IF  <address register>  <offset>           <condition register>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> LD >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Loads the address into a register specified by the base register plus offset.
+
+Syntax:
+LD        <destination register>  <number of bytes>  <base register>  <offset register>
+LD_FIXED  <destination register>  <number of bytes>  <base register>  <offset>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> PUT >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Puts a registers value into the address.
+
+Syntax:
+PUT        <source register>  <number of bytes>  <base register>  <offset register>
+PUT_FIXED  <source register>  <number of bytes>  <base register>  <offset>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SET >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Sets a registers value.
+
+Syntax:
+SET        <destination register>  <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SETU >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Sets the higher order bits of a register.
+
+Syntax:
+SETU        <destination register>  <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ADD >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Adds two registers and sets a third to the value.
+
+Syntax:
+ADD        <destination register>  <source register 1>  <source register 2>
+ADD_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SUB >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Subtracts the second register from the first and sets a third to the value.
+
+Syntax:
+SUB        <destination register>  <source register 1>  <source register 2>
+SUB_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MUL >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Multiplies two registers and sets a third to the value.
+
+Syntax:
+MUL        <destination register>  <source register 1>  <source register 2>
+MUL_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> DIV >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Divides the first register by the second and sets a third to the value.
+
+Syntax:
+DIV        <destination register>  <source register 1>  <source register 2>
+DIV_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> MOD >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Divides the first register by the second and sets a third to the remainder.
+
+Syntax:
+MOD        <destination register>  <source register 1>  <source register 2>
+MOD_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AND >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Performs the bitwise AND between two registers and sets a third to the value.
+
+Syntax:
+AND        <destination register>  <source register 1>  <source register 2>
+AND_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> OR >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Performs the bitwise OR between two registers and sets a third to the value.
+
+Syntax:
+OR        <destination register>  <source register 1>  <source register 2>
+OR_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> XOR >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Performs the bitwise XOR between two registers and sets a third to the value.
+
+Syntax:
+XOR        <destination register>  <source register 1>  <source register 2>
+XOR_FIXED  <destination register>  <source register>    <value>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> BSR >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Bit shifts right the value of a register and sets a second to the value.
+
+Syntax:
+BSR         <destination register>  <source register>  <number of bits>
+BSR_ROTATE  <destination register>  <source register>  <number of bits>
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> BSL >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Bit shifts left the value of a register and sets a second to the value.
+
+Syntax:
+BSL         <destination register>  <source register>  <number of bits>
+BSL_ROTATE  <destination register>  <source register>  <number of bits>
+
