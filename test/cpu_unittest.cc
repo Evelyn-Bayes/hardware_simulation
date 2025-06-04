@@ -8,7 +8,7 @@ extern "C" {
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> utils >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-Cpu init_cpu_with_state(uint32_t registers[8]) {
+static Cpu init_cpu_with_state(uint32_t registers[8]) {
     Cpu cpu = init_cpu();
     cpu.program_counter = 0;
     for (int i = 0; i < 8; i++) {
@@ -17,7 +17,7 @@ Cpu init_cpu_with_state(uint32_t registers[8]) {
     return cpu;
 }
 
-Memory init_memory_with_state(uint8_t *data, int size) {
+static Memory init_memory_with_state(uint8_t *data, int size) {
     Memory memory = init_memory();
     for (int i = 0; i < size; i++) {
         memory.data[i] = data[i];

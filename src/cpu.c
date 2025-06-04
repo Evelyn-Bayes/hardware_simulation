@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_REGISTERS 8
+static const char NUM_REGISTERS = 8;
 
 Cpu init_cpu() {
     Cpu cpu = {
@@ -22,27 +22,27 @@ Cpu init_cpu() {
     return cpu;
 }
 
-char get_op_code(uint32_t word) {
+static char get_op_code(uint32_t word) {
     return word & OP_CODE_BITMASK;
 }
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Utils >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void fail_if_invalid_register(uint32_t register_number) {
+static void fail_if_invalid_register(uint32_t register_number) {
     if (register_number >= NUM_REGISTERS) {
         fprintf(stderr, "Invalid register access, register %d does not exist.", register_number);
         exit(EXIT_FAILURE);
     }
 }
 
-void fail_if_invalid_memory_location(uint32_t location) {
+static void fail_if_invalid_memory_location(uint32_t location) {
     if (location >= MEMORY_SIZE_BYTES) {
         fprintf(stderr, "Invalid memory access, memory locatiom %d does not exist.\n", location);
         exit(EXIT_FAILURE);
     }
 }
 
-void fail_if_invalid_byte_mode(uint32_t byte_mode) {
+static void fail_if_invalid_byte_mode(uint32_t byte_mode) {
     if (byte_mode > 2) {
         fprintf(stderr, "Invalid byte mode %d\n", byte_mode);
         exit(EXIT_FAILURE);
@@ -50,14 +50,14 @@ void fail_if_invalid_byte_mode(uint32_t byte_mode) {
 }
 
 /* This looks a bit awkward but this is because our address space starts at 0 */
-void fail_if_invalid_memory_alignment(uint32_t location, uint32_t byte_mode) {
+static void fail_if_invalid_memory_alignment(uint32_t location, uint32_t byte_mode) {
     if ((byte_mode == 1 && location % 2 != 1) || (byte_mode == 2 && location % 4 != 3)) {
         fprintf(stderr, "Invalid memory alignment, byte mode %d and location %d\n", byte_mode, location);
         exit(EXIT_FAILURE);
     }
 }
 
-void fail_if_memory_underflow(uint32_t location, uint32_t byte_mode) {
+static void fail_if_memory_underflow(uint32_t location, uint32_t byte_mode) {
     if ((location < 3 && byte_mode == 2) || (location < 1 && byte_mode == 1)) {
         fprintf(stderr, "Memory underflow, location %d and byte mode %d\n", location, byte_mode);
         exit(EXIT_FAILURE);
@@ -66,7 +66,7 @@ void fail_if_memory_underflow(uint32_t location, uint32_t byte_mode) {
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> JMP >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void execute_jmp_instruction(uint32_t word, Cpu *cpu) {
+static void execute_jmp_instruction(uint32_t word, Cpu *cpu) {
     /* Bitmasks for the instruction */
     const uint32_t maybe_skip_instruction_bitmask = BITMASK_4;
     const uint32_t use_higher_order_bits_as_offset_value_bitmask = BITMASK_5;
@@ -97,11 +97,11 @@ void execute_jmp_instruction(uint32_t word, Cpu *cpu) {
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ST / LD >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 /* Forward declare functions so they are logically ordered and easier to read */
-void store_value_in_memory(uint32_t, uint32_t, uint32_t, Memory *);
-uint32_t load_value_from_memory(uint32_t, uint32_t, Cpu *, Memory *);
-uint32_t get_offset(uint32_t, uint32_t, bool, Cpu *);
+static uint32_t get_offset(uint32_t, uint32_t, bool, Cpu *);
+static void store_value_in_memory(uint32_t, uint32_t, uint32_t, Memory *);
+static uint32_t load_value_from_memory(uint32_t, uint32_t, Cpu *, Memory *);
 
-void execute_memory_management_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
+static void execute_memory_management_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     const uint32_t operation_bitmask = BITMASK_4;
     const uint32_t byte_mode_bitmask = BITMASK_6 | BITMASK_5;
     const uint32_t use_upper_bits_as_offset_bitmask = BITMASK_7;
@@ -128,7 +128,7 @@ void execute_memory_management_instruction(uint32_t word, Cpu *cpu, Memory *memo
     }
 }
 
-uint32_t get_offset(uint32_t word, uint32_t offset_register_or_value_bitmask, bool use_upper_bits_as_offset, Cpu *cpu) {
+static uint32_t get_offset(uint32_t word, uint32_t offset_register_or_value_bitmask, bool use_upper_bits_as_offset, Cpu *cpu) {
     uint32_t offset_register_or_value = (word & offset_register_or_value_bitmask) >> 13;
     uint32_t offset;
     if (use_upper_bits_as_offset) {
@@ -141,7 +141,7 @@ uint32_t get_offset(uint32_t word, uint32_t offset_register_or_value_bitmask, bo
 }
 
 /* Uses deliberate fallthrough */
-void store_value_in_memory(uint32_t value, uint32_t location, uint32_t byte_mode, Memory *memory) {
+static void store_value_in_memory(uint32_t value, uint32_t location, uint32_t byte_mode, Memory *memory) {
     switch (byte_mode) {
     case 2:
         memory->data[location - 3] = (value & 0xFF000000) >> 24;
@@ -154,7 +154,7 @@ void store_value_in_memory(uint32_t value, uint32_t location, uint32_t byte_mode
 }
 
 /* Loads a value from memory, given the location and byte mode */
-uint32_t load_value_from_memory(uint32_t location, uint32_t byte_mode, Cpu *cpu, Memory *memory) {
+static uint32_t load_value_from_memory(uint32_t location, uint32_t byte_mode, Cpu *cpu, Memory *memory) {
     fail_if_invalid_memory_location(location);
     fail_if_memory_underflow(location, byte_mode);
     fail_if_invalid_memory_alignment(location, byte_mode);
@@ -174,7 +174,7 @@ uint32_t load_value_from_memory(uint32_t location, uint32_t byte_mode, Cpu *cpu,
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> SET / SETU >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void execute_set_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
+static void execute_set_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     /* Bitmasks for the instruction */
     const uint32_t set_negative_value_bitmask = BITMASK_4;
     const uint32_t destination_register_bitmask = BITMASK_7 | BITMASK_6 | BITMASK_5;
@@ -191,7 +191,7 @@ void execute_set_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     cpu->registers[destination_register] = value;
 }
 
-void execute_setu_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
+static void execute_setu_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     const uint32_t destination_register_bitmask = BITMASK_6 | BITMASK_5 | BITMASK_4;
     const uint32_t value_bitmask = BITMASK_12 | BITMASK_11 | BITMASK_10 | BITMASK_9 | BITMASK_8 | BITMASK_7;
     const uint32_t clear_upper_bits_bitmask = BITMASK_32 | BITMASK_25 | BITMASK_24_TO_1;
@@ -205,7 +205,7 @@ void execute_setu_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ADD / SUB / MUL / DIV / MOD >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void execute_arithmetic_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
+static void execute_arithmetic_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     const uint32_t arithmetic_op_code_bitmask = BITMASK_6 | BITMASK_5 | BITMASK_4;
     const uint32_t use_upper_bits_as_value_bitmask = BITMASK_7;
     const uint32_t destination_register_bitmask = BITMASK_10 | BITMASK_9 | BITMASK_8;
@@ -246,7 +246,7 @@ void execute_arithmetic_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> AND / OR / XOR >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void execute_bitwise_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
+static void execute_bitwise_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     const uint32_t bitwise_op_code_bitmask = BITMASK_5 | BITMASK_4;
     const uint32_t use_upper_bits_as_value_bitmask = BITMASK_6;
     const uint32_t fill_unset_bits_bitmask = BITMASK_7;
@@ -284,7 +284,7 @@ void execute_bitwise_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> BSR / BSL >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-void execute_bitshift_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
+static void execute_bitshift_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     const uint32_t bitshift_op_code_bitmask = BITMASK_4;
     const uint32_t use_upper_bits_as_value_bitmask = BITMASK_5;
     const uint32_t rotate_bits_bitmask = BITMASK_6;
@@ -318,6 +318,8 @@ void execute_bitshift_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     }
     cpu->registers[destination_register] = value;
 }
+
+/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 void execute_instruction(uint32_t word, Cpu *cpu, Memory *memory) {
     uint32_t op_code = get_op_code(word);
