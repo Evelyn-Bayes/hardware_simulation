@@ -1,0 +1,6 @@
+---
+AlignConsecutiveMacros: true
+AllowShortFunctionsOnASingleLine: None
+ColumnLimit: 120
+IndentWidth: 4
+...
