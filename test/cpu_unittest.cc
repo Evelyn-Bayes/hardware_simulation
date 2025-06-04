@@ -8,7 +8,7 @@ extern "C" {
 
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> utils >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
-static Cpu init_cpu_with_state(uint32_t registers[8]) {
+static Cpu init_cpu_with_state(const uint32_t registers[8]) {
     Cpu cpu = init_cpu();
     cpu.program_counter = 0;
     for (int i = 0; i < 8; i++) {
@@ -17,7 +17,7 @@ static Cpu init_cpu_with_state(uint32_t registers[8]) {
     return cpu;
 }
 
-static Memory init_memory_with_state(uint8_t *data, int size) {
+static Memory init_memory_with_state(const uint8_t *data, int size) {
     Memory memory = init_memory();
     for (int i = 0; i < size; i++) {
         memory.data[i] = data[i];
@@ -43,7 +43,7 @@ TEST(Cpu, test_jmp_intruction_with_offset_value) {
  * "maybe skip instruction" register is true then the program counter should not be set to 1
  */
 TEST(Cpu, test_jmp_instruction_skips) {
-    uint32_t registers[8] = {0, 1, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0, 1, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -69,7 +69,7 @@ TEST(Cpu, test_jmp_instruction_does_not_skip) {
 
 /* Sets program counter to the value of register 0 plus an offset of 1 */
 TEST(Cpu, test_jmp_instruction_works_with_base_register) {
-    uint32_t registers[8] = {2, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {2, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -81,7 +81,7 @@ TEST(Cpu, test_jmp_instruction_works_with_base_register) {
 
 /* Sets program counter to the value of 1 using a 0 base register plus a 1 offset register */
 TEST(Cpu, test_jmp_instruction_works_with_offset_register) {
-    uint32_t registers[8] = {1, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -94,7 +94,7 @@ TEST(Cpu, test_jmp_instruction_works_with_offset_register) {
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ST >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 TEST(Cpu, test_st_byte_instruction) {
-    uint32_t registers[8] = {0, 1, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0, 1, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -106,7 +106,7 @@ TEST(Cpu, test_st_byte_instruction) {
 }
 
 TEST(Cpu, test_st_4_byte_instruction) {
-    uint32_t registers[8] = {0, 0x87654321, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0, 0x87654321, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -124,7 +124,7 @@ TEST(Cpu, test_st_4_byte_instruction) {
 
 TEST(Cpu, test_ld_byte_instruction) {
     Cpu cpu = init_cpu();
-    uint8_t data[4] = {0, 0, 0, 1};
+    const uint8_t data[4] = {0, 0, 0, 1};
     Memory memory = init_memory_with_state(data, 4);
 
     uint32_t instruction = BITMASK_15 | BITMASK_14 | BITMASK_8 | BITMASK_7 | LDB_BITMASK;
@@ -135,7 +135,7 @@ TEST(Cpu, test_ld_byte_instruction) {
 
 TEST(Cpu, test_ld_4_byte_instruction) {
     Cpu cpu = init_cpu();
-    uint8_t data[4] = {0x87, 0x65, 0x43, 0x21};
+    const uint8_t data[4] = {0x87, 0x65, 0x43, 0x21};
     Memory memory = init_memory_with_state(data, 4);
 
     uint32_t instruction = BITMASK_15 | BITMASK_14 | BITMASK_8 | BITMASK_7 | LDW_BITMASK;
@@ -191,7 +191,7 @@ TEST(Cpu, test_setu_instruction) {
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ADD >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/
 
 TEST(Cpu, test_add_instruction) {
-    uint32_t registers[8] = {1, 2, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {1, 2, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -203,7 +203,7 @@ TEST(Cpu, test_add_instruction) {
 
 /* Adds 2 to register 0 and stores the result in register 0 */
 TEST(Cpu, test_add_instruction_with_control_bit) {
-    uint32_t registers[8] = {1, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {1, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -217,7 +217,7 @@ TEST(Cpu, test_add_instruction_with_control_bit) {
 
 /* Subtracts register 1 from register 0 and stores the result in register 0 */
 TEST(Cpu, test_sub_instruction) {
-    uint32_t registers[8] = {4, 1, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {4, 1, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -230,7 +230,7 @@ TEST(Cpu, test_sub_instruction) {
 
 /* Subtracts 1 from register 0 and stores the result in register 0 */
 TEST(Cpu, test_sub_instruction_with_control_bit) {
-    uint32_t registers[8] = {4, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {4, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -244,7 +244,7 @@ TEST(Cpu, test_sub_instruction_with_control_bit) {
 
 /* Multiplies register 0 and register 1 and stores the result in register 0 */
 TEST(Cpu, test_mul_instruction) {
-    uint32_t registers[8] = {2, 3, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {2, 3, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -256,7 +256,7 @@ TEST(Cpu, test_mul_instruction) {
 
 /* Multiplies register 0 by 5 and stores the result in register 0 */
 TEST(Cpu, test_mul_instruction_with_control_bit) {
-    uint32_t registers[8] = {2, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {2, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -270,7 +270,7 @@ TEST(Cpu, test_mul_instruction_with_control_bit) {
 
 /* Divides register 0 by register 1 and stores the result in register 0 */
 TEST(Cpu, test_div_instruction) {
-    uint32_t registers[8] = {6, 2, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {6, 2, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -282,7 +282,7 @@ TEST(Cpu, test_div_instruction) {
 
 /* Divides register 0 by 2 and stores the result in register 0 */
 TEST(Cpu, test_div_instruction_with_control_bit) {
-    uint32_t registers[8] = {6, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {6, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -296,7 +296,7 @@ TEST(Cpu, test_div_instruction_with_control_bit) {
 
 /* Performs the modulo operation on register 0 using register 1 and stores the remainder in register 0 */
 TEST(Cpu, test_mod_instruction) {
-    uint32_t registers[8] = {6, 5, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {6, 5, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -308,7 +308,7 @@ TEST(Cpu, test_mod_instruction) {
 
 /* Performs the modulo operation on register 0 using a value of 5 and stores the remainder in register 0 */
 TEST(Cpu, test_mod_instruction_with_control_bit) {
-    uint32_t registers[8] = {6, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {6, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -321,7 +321,7 @@ TEST(Cpu, test_mod_instruction_with_control_bit) {
 
 /* Performs an AND operation on register 0 and register 1 */
 TEST(Cpu, test_and_instruction) {
-    uint32_t registers[8] = {0b0011, 0b0101, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0011, 0b0101, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -333,7 +333,7 @@ TEST(Cpu, test_and_instruction) {
 
 /* Performs an AND operation on register 0 and value 101 */
 TEST(Cpu, test_and_instruction_with_control_bit) {
-    uint32_t registers[8] = {0b0110, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0110, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -347,7 +347,7 @@ TEST(Cpu, test_and_instruction_with_control_bit) {
 
 /* Performs an OR operation on register 0 and register 1 */
 TEST(Cpu, test_or_instruction) {
-    uint32_t registers[8] = {0b0011, 0b0101, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0011, 0b0101, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -359,7 +359,7 @@ TEST(Cpu, test_or_instruction) {
 
 /* Performs an OR operation on register 0 and value 0b100 */
 TEST(Cpu, test_or_instruction_with_control_bit) {
-    uint32_t registers[8] = {0b1010, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b1010, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -373,7 +373,7 @@ TEST(Cpu, test_or_instruction_with_control_bit) {
 
 /* Performs an XOR operation on register 0 and register 1 */
 TEST(Cpu, test_xor_instruction) {
-    uint32_t registers[8] = {0b011, 0b0101, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b011, 0b0101, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -385,7 +385,7 @@ TEST(Cpu, test_xor_instruction) {
 
 /* Performs an XOR operation on register 0 and value 0b0010 */
 TEST(Cpu, test_xor_instruction_with_control_bit) {
-    uint32_t registers[8] = {0b1010, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b1010, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -399,7 +399,7 @@ TEST(Cpu, test_xor_instruction_with_control_bit) {
 
 /* Bit shifts register 0 by register 1 and stores the value in register 0 */
 TEST(Cpu, test_bsr_instruction) {
-    uint32_t registers[8] = {0b0100, 2, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0100, 2, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -411,7 +411,7 @@ TEST(Cpu, test_bsr_instruction) {
 
 /* Bit shifts register 0 twice resulting in a value of 1 */
 TEST(Cpu, test_bsr_instruction_with_control_bit) {
-    uint32_t registers[8] = {0b0100, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0100, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -426,7 +426,7 @@ TEST(Cpu, test_bsr_instruction_with_control_bit) {
  * -1073741823 
  */
 TEST(Cpu, test_bsr_instruction_with_control_bit_and_overflow) {
-    uint32_t registers[8] = {0b0101, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0101, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -440,7 +440,7 @@ TEST(Cpu, test_bsr_instruction_with_control_bit_and_overflow) {
 
 /* Bit shifts register 0 by register 1 and stores the value in register 0 */
 TEST(Cpu, test_bsl_instruction) {
-    uint32_t registers[8] = {0b0010, 2, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0010, 2, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -452,7 +452,7 @@ TEST(Cpu, test_bsl_instruction) {
 
 /* Bit shifts register 0 left twice resulting in a value of 0b1000 */
 TEST(Cpu, test_bsl_instruction_with_control_bit) {
-    uint32_t registers[8] = {0b0010, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {0b0010, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
@@ -464,7 +464,7 @@ TEST(Cpu, test_bsl_instruction_with_control_bit) {
 
 /* Bit shifts register 0 once while letting it overflow back onto the lower order bits resulting in a value of 3 */
 TEST(Cpu, test_bsl_instruction_with_control_bit_and_overflow) {
-    uint32_t registers[8] = {BITMASK_32 | BITMASK_1, 0, 0, 0, 0, 0, 0, 0};
+    const uint32_t registers[8] = {BITMASK_32 | BITMASK_1, 0, 0, 0, 0, 0, 0, 0};
     Cpu cpu = init_cpu_with_state(registers);
     Memory memory = init_memory();
 
